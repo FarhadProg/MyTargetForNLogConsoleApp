@@ -13,6 +13,9 @@ namespace MyTargetForNLogConsoleApp
     [Target("MyFirst")]
     public sealed class MyTarget : TargetWithContext
     {
+        private static readonly string BASE_LOG_DIR_NAME;
+        private static readonly string BASE_FILE_NAME;
+        public string FullPath { get; private set; }
         public string ThreadId { get; private set; }
         public string BaseLogDirName { get; private set; }
         public string ShortFileName { get; private set; }
@@ -24,12 +27,56 @@ namespace MyTargetForNLogConsoleApp
 
         public MyTarget()
         {
-            this.IncludeEventProperties = true;
-            this.ThreadId = "0";
-            this.BaseLogDirName = @"c:\LogsTMP\";
-            this.ShortFileName = "Log_";
-            this.FileExtension = ".log";
-            this.fileName = "";
+            try
+            {
+                IncludeEventProperties = true;
+                ThreadId = "0";
+                BaseLogDirName = @"c:\LogsTMP\";
+                ShortFileName = "Log_";
+                FileExtension = ".log";
+                fileName = "";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("В конструктре класса произошла ошибка " + ex.Message);
+            }
+        }
+        static MyTarget()
+        {
+
+            try
+            {
+                BASE_LOG_DIR_NAME = @"C:\LogsTMP\";
+                BASE_FILE_NAME = "Log_";
+                if (!Directory.Exists(BASE_LOG_DIR_NAME))
+                {
+                    Directory.CreateDirectory(BASE_LOG_DIR_NAME);
+                }
+            }
+            catch (DriveNotFoundException ex)
+            {
+                Console.WriteLine("В статическом конструктре класса произошла ошибка " + ex.Message);
+
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                Console.WriteLine("В статическом конструктре класса произошла ошибка" + ex.Message);
+
+            }
+            catch (PathTooLongException ex)
+            {
+                Console.WriteLine("В статическом конструктре класса произошла ошибка " + ex.Message);
+
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine("В статическом конструктре класса произошла ошибка " + ex.Message);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("В статическом конструктре класса произошла ошибка " + ex.Message);
+            }
 
         }
 
@@ -38,67 +85,53 @@ namespace MyTargetForNLogConsoleApp
         {
             try
             {
-                string logMessage = this.RenderLogEvent(this.Layout, logEvent);
-                IDictionary<string, object> logProperties = this.GetAllProperties(logEvent);
-                WriteLogMessageToFile(logMessage, logProperties);
-            }
-            catch(Exception ex)
-            {
-
-                Console.WriteLine("При записи сообщения в лог произошла ошибка:" + ex.Message );
-            }
-
-        }
-
-        private void WriteLogMessageToFile(string message, IDictionary<string, object> properties)
-        {
-            
-
-            try
-            {
-                this.ThreadId = properties["@threadId"].ToString();
-                this.fileName = this.BaseLogDirName + this.ShortFileName + this.ThreadId + this.FileExtension;
-               
-                if (!Directory.Exists(this.BaseLogDirName))
+                string logMessage = RenderLogEvent(Layout, logEvent);
+                IDictionary<string, object> logProperties = GetAllProperties(logEvent);
+                ThreadId = logProperties["@threadId"].ToString();
+                SetShortFileName();
+                FullPath = Path.Combine(BASE_LOG_DIR_NAME, ShortFileName);
+                using (StreamWriter sw = new StreamWriter(FullPath, true))
                 {
-                    Directory.CreateDirectory(this.BaseLogDirName);
-                }
-
-                using (StreamWriter sw = new StreamWriter(this.fileName, true))
-                {
-                    sw.WriteLine(message);
+                    sw.WriteLine(logMessage);
 
                 }
+            }
+            catch (KeyNotFoundException ex)
+            {
+                Console.WriteLine("При записи сообщения в лог произошла ошибка:" + ex.Message);
             }
             catch (DriveNotFoundException ex)
             {
-                throw ex;
+                Console.WriteLine("При записи сообщения в лог произошла ошибка:" + ex.Message);
 
             }
-           // По идее DirectoryNotFoundException не нужно , так как мы если директории нет,
-           //мы создаем её. 
-            catch (DirectoryNotFoundException ex) 
+            catch (DirectoryNotFoundException ex)
             {
-                throw ex;
+                Console.WriteLine("При записи сообщения в лог произошла ошибка:" + ex.Message);
 
             }
-            catch(PathTooLongException ex)
+            catch (PathTooLongException ex)
             {
-                throw ex;
+                Console.WriteLine("При записи сообщения в лог произошла ошибка:" + ex.Message);
 
             }
-            catch(IOException ex)
+            catch (IOException ex)
             {
-                throw ex;
+                Console.WriteLine("При записи сообщения в лог произошла ошибка:" + ex.Message);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                throw ex;
 
+                Console.WriteLine("При записи сообщения в лог произошла ошибка:" + ex.Message);
             }
-
 
         }
+
+        private void SetShortFileName()
+        {
+            ShortFileName = BASE_FILE_NAME + ThreadId + FileExtension;
+        }
+
     }
 }
