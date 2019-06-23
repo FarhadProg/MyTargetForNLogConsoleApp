@@ -15,12 +15,10 @@ namespace MyTargetForNLogConsoleApp
     {
         private static readonly string BASE_LOG_DIR_NAME;
         private static readonly string BASE_FILE_NAME;
+        private static readonly string FILE_EXTENSHION;
         public string FullPath { get; private set; }
         public string ThreadId { get; private set; }
-        public string BaseLogDirName { get; private set; }
         public string ShortFileName { get; private set; }
-
-        public string FileExtension { get; private set; }
 
         [RequiredParameter]
         public string fileName { get; private set; }
@@ -31,9 +29,6 @@ namespace MyTargetForNLogConsoleApp
             {
                 IncludeEventProperties = true;
                 ThreadId = "0";
-                BaseLogDirName = @"c:\LogsTMP\";
-                ShortFileName = "Log_";
-                FileExtension = ".log";
                 fileName = "";
             }
             catch (Exception ex)
@@ -48,6 +43,7 @@ namespace MyTargetForNLogConsoleApp
             {
                 BASE_LOG_DIR_NAME = @"C:\LogsTMP\";
                 BASE_FILE_NAME = "Log_";
+                FILE_EXTENSHION = ".log";
                 if (!Directory.Exists(BASE_LOG_DIR_NAME))
                 {
                     Directory.CreateDirectory(BASE_LOG_DIR_NAME);
@@ -130,7 +126,7 @@ namespace MyTargetForNLogConsoleApp
 
         private void SetShortFileName()
         {
-            ShortFileName = BASE_FILE_NAME + ThreadId + FileExtension;
+            ShortFileName = BASE_FILE_NAME + ThreadId + FILE_EXTENSHION;
         }
 
     }
