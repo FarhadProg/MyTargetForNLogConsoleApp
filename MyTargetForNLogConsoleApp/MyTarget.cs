@@ -20,8 +20,7 @@ namespace MyTargetForNLogConsoleApp
         public string ThreadId { get; private set; }
         public string ShortFileName { get; private set; }
 
-        [RequiredParameter]
-        public string fileName { get; private set; }
+ 
 
         public MyTarget()
         {
@@ -29,7 +28,8 @@ namespace MyTargetForNLogConsoleApp
             {
                 IncludeEventProperties = true;
                 ThreadId = "0";
-                fileName = "";
+                ShortFileName = "Log_0.log";
+                FullPath = Path.Combine(BASE_LOG_DIR_NAME, ShortFileName);
             }
             catch (Exception ex)
             {
