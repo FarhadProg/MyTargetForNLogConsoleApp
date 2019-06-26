@@ -94,8 +94,8 @@ namespace MyTargetForNLogConsoleApp
         }
         private string  GetFileName(string threadID)
         {
-            FilePathPatternCollection.TryAdd(threadID, FilePathPattern.Replace("#", threadID)); 
-            return (FilePathPatternCollection[threadID]);
+            return(FilePathPatternCollection.GetOrAdd(threadID, FilePathPattern.Replace("#", threadID)));
+             
         }
 
 
